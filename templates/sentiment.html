@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Sentiment Analysis</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+<body>
+    <div class="container">
+        <h1>Sentiment Analysis</h1>
+
+        <!-- Form for text-based sentiment analysis -->
+        <form action="/sentiment" method="post">
+            <label for="user_input">Enter your text for analysis:</label><br>
+            <textarea id="user_input" name="user_input" rows="4" cols="50" placeholder="Type something here..."></textarea><br><br>
+            <button type="submit">Analyze</button>
+        </form>
+
+        <hr>
+
+        <!-- Section for audio transcription and sentiment analysis -->
+        <h2>Live Audio Sentiment Analysis</h2>
+        <form action="/audio_sentiment" method="post">
+            <button type="submit">Start Audio Sentiment Analysis</button>
+        </form>
+
+        <!-- Results Section -->
+        {% if sentiment %}
+            <hr>
+            <h3>Results</h3>
+            <p><strong>Transcribed Text:</strong> {{ user_input }}</p>
+            <p><strong>Sentiment:</strong> {{ sentiment }}</p>
+            <p><strong>Details:</strong> {{ details }}</p>
+        {% endif %}
+
+        <!-- Error Section -->
+        {% if error %}
+            <hr>
+            <h3>Error</h3>
+            <p>{{ error }}</p>
+        {% endif %}
+    </div>
+</body>
+</html>

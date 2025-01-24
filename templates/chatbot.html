@@ -1,0 +1,20 @@
+{% extends "layout.html" %}
+
+{% block content %}
+<h2>Chat Assistance</h2>
+<form method="POST" action="/chatbot">
+    <label for="user_message">Your Message:</label>
+    <input type="text" name="user_message" id="user_message" required>
+    <button type="submit">Send</button>
+</form>
+{% if user_message and assistant_message %}
+    <div class="chat">
+        <p><strong>You:</strong> {{ user_message }}</p>
+        <p><strong>Assistant:</strong> {{ assistant_message }}</p>
+    </div>
+{% elif error %}
+    <div class="error">
+        <p>{{ error }}</p>
+    </div>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Real-time Conversation</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+</head>
+
+<style>
+    body {
+        font-family: 'Arial', sans-serif;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        height: 100vh;
+        margin: 0;
+        background-color: #f1f8e9;
+    }
+    
+    .chat-container {
+        width: 90%;
+        max-width: 800px;  /* Increased max-width for a wider chat box */
+        background-color: white;
+        padding: 20px;
+        border-radius: 10px;
+        box-shadow: 0 0 15px rgba(0, 0, 0, 0.1);
+        border: 1px solid #ddd;
+    }
+    
+    h1 {
+        text-align: center;
+        color: #00796b;
+    }
+    
+    .chat-box {
+        max-height: 400px;
+        overflow-y: auto;
+        margin-bottom: 20px;
+        padding-right: 15px;
+        width: 100%; /* Ensures the chat box takes the full width of the container */
+    }
+    
+    .user-message, .machine-message {
+        padding: 12px;
+        border-radius: 8px;
+        margin-bottom: 10px;
+    }
+    
+    .user-message {
+        background-color: #e0f7fa;
+        border-left: 5px solid #00796b;
+    }
+    
+    .machine-message {
+        background-color: #f1f8e9;
+        border-left: 5px solid #388e3c;
+    }
+    
+    .input-container {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 20px;
+        gap: 10px;
+    }
+    
+    button {
+        padding: 12px 20px;
+        font-size: 16px;
+        cursor: pointer;
+        border: none;
+        background-color: #00796b;
+        color: white;
+        border-radius: 8px;
+        transition: background-color 0.3s;
+    }
+    
+    button:hover {
+        background-color: #004d40;
+    }
+    
+    .ai-insights, .recommendations {
+        background-color: #fffbf1;
+        border: 1px solid #ffeb3b;
+        padding: 8px;
+        margin-top: 10px;
+        border-radius: 8px;
+    }
+
+</style>
+
+<body>
+    <div class="chat-container">
+        <h1>Live Conversation Deal Recommendation</h1>
+        <div id="chatBox" class="chat-box">
+            <!-- Chat messages will be dynamically inserted here -->
+        </div>
+
+        <div class="input-container">
+            <button id="startConversationButton" onclick="startConversation()">Start Conversation</button>
+            <button id="listenButton" onclick="startListening()">Listen</button>
+        </div>
+    </div>
+
+    <script>
+        let lastMessageId = null; // Track the last message to avoid duplicates
+
+function updateChatBox(userInput, responseText, aiInsights, recommendations) {
+    const chatBox = document.getElementById('chatBox');
+
+    // Generate a unique ID for this update
+    const currentMessageId = `${userInput || ''}-${responseText || ''}-${Date.now()}`;
+
+    if (lastMessageId === currentMessageId) {
+        return; // Skip appending if the message is already displayed
+    }
+    lastMessageId = currentMessageId;
+
+    // User message
+    if (userInput) {
+        const userMessage = document.createElement('div');
+        userMessage.classList.add('user-message');
+        userMessage.textContent = `You said: ${userInput}`;
+        chatBox.appendChild(userMessage);
+    }
+
+    // AI response
+    if (responseText) {
+        const machineMessage = document.createElement('div');
+        machineMessage.classList.add('machine-message');
+        machineMessage.textContent = `Response: ${responseText}`;
+        chatBox.appendChild(machineMessage);
+    }
+
+    // AI Insights
+    if (aiInsights) {
+        const insightsMessage = document.createElement('div');
+        insightsMessage.classList.add('ai-insights');
+        insightsMessage.textContent = `AI Insights: ${aiInsights}`;
+        chatBox.appendChild(insightsMessage);
+    }
+
+    // Recommendations
+    if (recommendations) {
+        const recommendationsMessage = document.createElement('div');
+        recommendationsMessage.classList.add('recommendations');
+        recommendationsMessage.textContent = `Recommendations: ${recommendations}`;
+        chatBox.appendChild(recommendationsMessage);
+    }
+
+    chatBox.scrollTop = chatBox.scrollHeight; // Auto-scroll to the latest message
+    }
+
+
+    function startListening() {
+    const listenButton = document.getElementById('listenButton');
+    listenButton.disabled = true; // Disable to prevent multiple clicks
+
+    fetch('/listen', { method: 'POST' })
+        .then(response => response.json())
+        .then(data => {
+            updateChatBox(data.user_input, data.response, data.insights, data.recommendations);
+            if (data.end) {
+                updateChatBox("", "Conversation ended. Goodbye!");
+            }
+            speakResponse(data.response);
+        })
+        .catch(error => console.error('Error during listening:', error))
+        .finally(() => listenButton.disabled = false); // Re-enable after processing
+}
+
+    
+    </script>
+</body>
+</html>
